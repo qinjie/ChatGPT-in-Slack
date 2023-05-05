@@ -1,101 +1,99 @@
-# ChatGPT in Slack
+# Add ChatGPT to Slack
 
-Introducing a transformative app for Slack users, specifically designed to enhance your communication with [ChatGPT](https://openai.com/blog/chatgpt)!
-This app enables seamless interaction with ChatGPT via Slack channels, optimizing your planning and writing processes by leveraging AI technology.
 
-Discover the app's functionality by installing the live demo from https://bit.ly/chat-gpt-in-slack. 
-Keep in mind that the live demo is personally hosted by [@seratch](https://github.com/seratch).
-For corporate Slack workspaces, we strongly advise deploying the app on your own infrastructure using the guidelines provided below.
 
-If you're looking for a sample app operating on [Slack's next-generation hosted platform](https://api.slack.com/future), check out https://github.com/seratch/chatgpt-on-deno 🙌
+## Slack App & OpenAI
 
-## How to Setup
+### Setup Slack App
 
-1. On a Linux machine, clone the repo. 
+1. Login into Slack and and go to [Slack API website](https://api.slack.com/apps).
 
-2. Create a virtual env and install the required libraries.
+2. Click on Your Apps at top right corner and create a new app. 
 
-3. Update `.env` file.
+   ![image-20230306085411462](./assets/Add%20ChatGPT%20to%20Slack.assets/image-20230306085411462.png)
 
-4. Setup crontab so that the script will re-run after reboot. 
+3. Select **from Scratch**. Give an app name, e.g. `chatgpt` and select the workspace which it will be used.
+
+   ![image-20230312205718982](./assets/Add%20ChatGPT%20to%20Slack.assets/image-20230312205718982.png)
+
+4. From side menu, select **Features > OAuth & Permissions**. In the **Scopes** session, add following **Bot Token Scopes**: `app_mentions:read`, `channels:history`, `channels:read`, `chat:write`.
+
+   ![image-20230306084016112](./assets/Add%20ChatGPT%20to%20Slack.assets/image-20230306084016112.png)
+
+5. From side menu, select **Socket Mode**, check **Enable Socket Mode**, copy the `SLACK_APP_TOKEN`, which starts with `xapp-`
+
+   * xapp-1-A04TX4QH8LR-5010375644498-0609ec96a4c9562255f43d6f84e334bb91303a0de2aa0c5f9a31e10849a7889b
+
+   ![image-20230326152741190](./assets/Add ChatGPT to Slack.assets/image-20230326152741190.png)
+
+   
+
+6. From side menu, select **Features > Event Subscriptions**. Enable the Events. In **Subscribe to bot events**, add `app_mention`.
+
+   ![image-20230306090437885](./assets/Add%20ChatGPT%20to%20Slack.assets/image-20230306090437885.png)
+
+7. From side menu, select **Install App**. Copy the Bot User OAuth Token, which will be used as `slack-app-token` in next session.
+
+   ![image-20230306090035829](./assets/Add%20ChatGPT%20to%20Slack.assets/image-20230306090035829.png)
+
+8. Copy the `SLACK_BOT_TOKEN`, which starts with `xoxb`.
+
+   * xoxb-371556214532-4936418345427-kcTx4vYwjEkCI3Tv8V5BB3YU
+
+   ![image-20230312210430712](./assets/Add%20ChatGPT%20to%20Slack.assets/image-20230312210430712.png)
+
+
+
+### Get ChatGPT Token
+
+1. Go to [ChatGPT API site](https://openai.com/blog/openai-api).
+2. Click on Sign Up and login with your account.
+3. Click on your Account Profile on top right corner and select **View API Keys**.
+4. Create a new key, which will be used as `OPENAI_API_KEY` in next session.
+
+
+
+## Setup Python Program
+
+1. Setup GitHub authentication using SSH.
+2. Clone the GitHub repo. 
 
 ```
-@reboot cd /home/ubuntu/ChatGPT-in-Slack && source .venv/bin/activate  && nohup python main.py > ./output.log  2>&1 &
-``` 
+git clone git@github.com:qinjie/ChatGPT-in-Slack.git
+cd ChatGPT-in-Slack
+```
 
+3. Create a virtual env and install the required libraries.
 
-
-## How It Works
-
-You can interact with ChatGPT like you do in the website. In the same thread, the bot remember what you already said.
-
-<img src="https://user-images.githubusercontent.com/19658/222405498-867f5002-c8ba-4dc9-bd86-fddc5192070c.gif" width=450 />
-
-Consider this realistic scenario: ask the bot to generate a business email for communication with your manager.
-
-<img width="700" src="https://user-images.githubusercontent.com/19658/222609940-eb581361-eeea-441a-a300-96ecdbc23d0b.png">
-
-With ChatGPT, you don't need to ask a perfectly formulated question at first. Adjusting the details after receiving the bot's initial response is a great approach.
-
-<img width="700" src="https://user-images.githubusercontent.com/19658/222609947-b99ace0d-4c90-4265-940d-3fc373429b80.png">
-
-Doesn't that sound cool? 😎
-
-## Running the App on Your Local Machine
-
-To run this app on your local machine, you only need to follow these simple steps:
-
-* Create a new Slack app using the manifest-dev.yml file
-* Install the app into your Slack workspace
-* Retrieve your OpenAI API key at https://platform.openai.com/account/api-keys
-* Start the app
-
-```bash
-# Create an app-level token with connections:write scope
-export SLACK_APP_TOKEN=xapp-1-...
-# Install the app into your workspace to grab this token
-export SLACK_BOT_TOKEN=xoxb-...
-# Visit https://platform.openai.com/account/api-keys for this token
-export OPENAI_API_KEY=sk-...
-
-# Optional: gpt-3.5-turbo and gpt-4 are currently supported (default: gpt-3.5-turbo)
-export OPENAI_MODEL=gpt-4
-# Optional: You can adjust the timeout seconds for OpenAI calls (default: 30)
-export OPENAI_TIMEOUT_SECONDS=60
-# Optional: You can include priming instructions for ChatGPT to fine tune the bot purpose
-export OPENAI_SYSTEM_TEXT="You proofread text. When you receive a message, you will check
-for mistakes and make suggestion to improve the language of the given text"
-# Optional: When the string is "true", this app translates ChatGPT prompts into a user's preferred language (default: true)
-export USE_SLACK_LANGUAGE=true
-# Optional: Adjust the app's logging level (default: DEBUG)
-export SLACK_APP_LOG_LEVEL=INFO
-# Optional: When the string is "true", translate between OpenAI markdown and Slack mrkdwn format (default: false)
-export TRANSLATE_MARKDOWN=true
-
-python -m venv .venv
+```
+python -m virutalenv .venv --python=python3.9
 source .venv/bin/activate
 pip install -r requirements.txt
+```
+
+4. Copy `.env.sample` to `.env`. Update `.env` file about the `OPENAI_API_KEY`, `SLACK_APP_TOKEN` and `SLACK_BOT_TOKEN`.
+
+5. Test the python script.
+
+```
 python main.py
 ```
 
-## Running the App for Company Workspaces
 
-Confidentiality of information is top priority for businesses.
 
-This app is open-sourced! so please feel free to fork it and deploy the app onto the infrastructure that you manage.
-After going through the above local development process, you can deploy the app using `Dockerfile`, which is placed at the root directory of this project.
+### Run the Python Script upon Reboot
 
-The `Dockerfile` is designed to establish a WebSocket connection with Slack via Socket Mode.
-This means that there's no need to provide a public URL for communication with Slack.
+1. Edit the crontab
 
-## Contributions
+```
+crontab -e
+```
 
-You're always welcome to contribute! :raised_hands:
-When you make changes to the code in this project, please keep these points in mind:
-- When making changes to the app, please avoid anything that could cause breaking behavior. If such changes are absolutely necessary due to critical reasons, like security issues, please start a discussion in GitHub Issues before making significant alterations.
-- When you have the chance, please write some unit tests. Especially when you touch `internals.py` and add/edit the code that do not call any web APIs, writing tests should be relatively easy.
-- Before committing your changes, be sure to run `./validate.sh`. The script runs black (code formatter), flake8 and pytype (static code analyzers).
+2. Add the line to run the script upon reboot.
 
-## The License
+```
+@reboot cd /home/ubuntu/ChatGPT-in-Slack && source .venv/bin/activate  && nohup python main.py > ./output.log  2>&1 &
+```
 
-The MIT License
+
+
