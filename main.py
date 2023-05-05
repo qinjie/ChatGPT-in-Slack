@@ -1,5 +1,6 @@
 import logging
 import os
+from dotenv import load_dotenv
 
 from slack_bolt import App, BoltContext
 from slack_sdk.web import WebClient
@@ -19,11 +20,14 @@ from app.slack_ops import (
 from app.i18n import translate
 
 
+load_dotenv()
+
 if __name__ == "__main__":
     from slack_bolt.adapter.socket_mode import SocketModeHandler
 
     logging.basicConfig(level=SLACK_APP_LOG_LEVEL)
 
+    print(os.environ)
     app = App(
         token=os.environ["SLACK_BOT_TOKEN"],
         before_authorize=before_authorize,
@@ -32,6 +36,7 @@ if __name__ == "__main__":
     app.client.retry_handlers.append(RateLimitErrorRetryHandler(max_retry_count=2))
 
     register_listeners(app)
+
 
     @app.event("app_home_opened")
     def render_home_tab(client: WebClient, context: BoltContext):

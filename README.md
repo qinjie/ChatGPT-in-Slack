@@ -9,6 +9,22 @@ For corporate Slack workspaces, we strongly advise deploying the app on your own
 
 If you're looking for a sample app operating on [Slack's next-generation hosted platform](https://api.slack.com/future), check out https://github.com/seratch/chatgpt-on-deno 🙌
 
+## How to Setup
+
+1. On a Linux machine, clone the repo. 
+
+2. Create a virtual env and install the required libraries.
+
+3. Update `.env` file.
+
+4. Setup crontab so that the script will re-run after reboot. 
+
+```
+@reboot cd /home/ubuntu/ChatGPT-in-Slack && source .venv/bin/activate  && nohup python main.py > ./output.log  2>&1 &
+``` 
+
+
+
 ## How It Works
 
 You can interact with ChatGPT like you do in the website. In the same thread, the bot remember what you already said.
