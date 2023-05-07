@@ -2,6 +2,8 @@ import logging
 import os
 from dotenv import load_dotenv
 
+load_dotenv()
+
 from slack_bolt import App, BoltContext
 from slack_sdk.web import WebClient
 from slack_sdk.http_retry.builtin_handlers import RateLimitErrorRetryHandler
@@ -20,7 +22,8 @@ from app.slack_ops import (
 from app.i18n import translate
 
 
-load_dotenv()
+#print("SLACK_BOT_TOKE",os.environ["SLACK_BOT_TOKEN"])
+#print("SLACK_APP_TOKE",os.environ["SLACK_APP_TOKEN"])
 
 if __name__ == "__main__":
     from slack_bolt.adapter.socket_mode import SocketModeHandler
