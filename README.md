@@ -91,8 +91,11 @@ crontab -e
 
 2. Add the line to run the script upon reboot.
 
+We need to set the SHELL to `/bin/bash` becasue default shell in crontab is `/bin/sh` which doesn't support `source` command.
+
 ```
-@reboot cd /home/ubuntu/ChatGPT-in-Slack && source .venv/bin/activate  && nohup python main.py > ./output.log  2>&1 &
+SHELL=/bin/bash
+@reboot cd /home/ubuntu/ChatGPT-in-Slack && source .venv/bin/activate && pwd > /home/ubuntu/logs/chatgpt.log && nohup python main.py >> /home/ubuntu/logs/chatgpt.log  2>&1 &
 ```
 
 
